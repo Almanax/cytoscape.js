@@ -11317,7 +11317,6 @@ var elesfn = {
       eles: this
     }));
   }
-}
 
 };
 
@@ -11477,7 +11476,7 @@ var elesfn = {
     var ele = this[0];
     var cy = ele.cy();
 
-    if (!ele.cy().styleEnabled()) {
+    if (!cy.styleEnabled()) {
       return;
     }
 
@@ -11492,7 +11491,6 @@ var elesfn = {
     if (!ele.cy().styleEnabled()) {
       return;
     }
-  },
 
     if (ele) {
       var pstyle = ele.pstyle(property);
@@ -11801,15 +11799,8 @@ module.exports = elesfn;
 /* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
-  if (ele) {
-    return !ele.visible();
-  }
-};
+"use strict";
 
-elesfn.bypass = elesfn.css = elesfn.style;
-elesfn.renderedCss = elesfn.renderedStyle;
-elesfn.removeBypass = elesfn.removeCss = elesfn.removeStyle;
-elesfn.pstyle = elesfn.parsedStyle;
 
 var elesfn = {};
 
@@ -14704,10 +14695,6 @@ styfn.applyBypass = function (eles, name, value, updateTransitions) {
         var prevProp = ele.pstyle(_prop2.name);
         diffProp = diffProps[_prop2.name] = { prev: prevProp };
       }
-    }
-  } else if (is.string(name)) {
-    // then parse the single property
-    var _parsedProp = this.parse(name, value, true);
 
       ret = this.applyParsedProperty(ele, _prop2) || ret;
 
@@ -15249,7 +15236,7 @@ var styfn = {};
     textBackgroundShape: { enums: ['rectangle', 'roundrectangle'] },
     nodeShape: { enums: ['rectangle', 'roundrectangle', 'cutrectangle', 'bottomroundrectangle', 'barrel', 'ellipse', 'triangle', 'square', 'pentagon', 'hexagon', 'concavehexagon', 'heptagon', 'octagon', 'tag', 'star', 'diamond', 'vee', 'rhomboid', 'polygon'] },
     compoundIncludeLabels: { enums: ['include', 'exclude'] },
-    arrowShape: { enums: ['tee', 'triangle', 'triangle-tee', 'triangle-cross', 'triangle-backcurve', 'half-triangle-overshot', 'vee', 'square', 'circle', 'diamond', 'none'] },
+    arrowShape: { enums: ['tee', 'triangle', 'triangle-tee', 'triangle-cross', 'triangle-backcurve', 'half-triangle-overshot', 'vee', 'square', 'circle', 'diamond', 'chevron', 'none'] },
     arrowFill: { enums: ['filled', 'hollow'] },
     display: { enums: ['element', 'none'] },
     visibility: { enums: ['hidden', 'visible'] },
@@ -16083,13 +16070,8 @@ module.exports = styfn;
 /* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
-          if (is.number(y)) {
-            pan.y = y;
-          }
+"use strict";
 
-          this.emit('pan viewport');
-        }
-        break;
 
 var is = __webpack_require__(0);
 var window = __webpack_require__(3);
@@ -16381,7 +16363,6 @@ var corefn = {
         pan: pan
       };
     }
-  },
 
     return;
   },
@@ -17452,16 +17433,8 @@ module.exports = BreadthFirstLayout;
 /* 98 */
 /***/ (function(module, exports, __webpack_require__) {
 
-    minDistance = Math.max(minDistance, w, h);
-  }
+"use strict";
 
-  if (is.number(options.radius)) {
-    r = options.radius;
-  } else if (nodes.length <= 1) {
-    r = 0;
-  } else {
-    r = Math.min(bb.h, bb.w) / 2 - minDistance;
-  }
 
 var util = __webpack_require__(1);
 var math = __webpack_require__(2);
@@ -20162,6 +20135,14 @@ BRp.registerArrowShapes = function () {
       return edge.pstyle('width').pfValue * edge.pstyle('arrow-scale').value;
     }
   });
+
+  defineArrowShape('chevron', {
+    points: [0, 0, -0.3 / 4 * 3, -0.3 / 4 * 3, -0.2 / 4 * 3, -0.4 / 4 * 3, 0, -0.2 / 4 * 3, 0.2 / 4 * 3, -0.4 / 4 * 3, 0.3 / 4 * 3, -0.3 / 4 * 3],
+
+    gap: function gap(edge) {
+      return edge.pstyle('width').pfValue * edge.pstyle('arrow-scale').value;
+    }
+  });
 };
 
 module.exports = BRp;
@@ -22050,6 +22031,11 @@ BRp.getLabelText = function (ele, prefix) {
     }
   };
 
+  // for empty text, skip all processing
+  if (!text) {
+    return '';
+  }
+
   if (textTransform == 'none') {
     // passthrough
   } else if (textTransform == 'uppercase') {
@@ -22277,7 +22263,6 @@ BRp.registerCalculationListeners = function () {
   var cy = this.cy;
   var elesToUpdate = cy.collection();
   var r = this;
-  var shape = node.pstyle('shape').value;
 
   var enqueue = function enqueue(eles, e) {
     var dirtyStyleCaches = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -22465,10 +22450,8 @@ module.exports = BRp;
 /* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
-  // edges
+"use strict";
 
-  .on('add.* style.*', 'edge', function onDirtyEdge(e) {
-    var edge = e.target;
 
 var zIndexSort = __webpack_require__(17);
 
@@ -24674,14 +24657,8 @@ module.exports = BRp;
 /* 121 */
 /***/ (function(module, exports, __webpack_require__) {
 
-    var pointerIsMouse = function pointerIsMouse(e) {
-      return e.pointerType === 'mouse' || e.pointerType === 4;
-    };
+"use strict";
 
-    r.registerBinding(r.container, 'pointerdown', function (e) {
-      if (pointerIsMouse(e)) {
-        return;
-      } // mouse already handled
 
 var math = __webpack_require__(2);
 
@@ -26298,7 +26275,6 @@ LTCp.levelIsComplete = function (lvl, eles) {
 
     numElesInLayers += layer.eles.length;
   }
-};
 
   // we should have exactly the number of eles passed in to be complete
   if (numElesInLayers !== eles.length) {
@@ -26399,7 +26375,6 @@ LTCp.haveLayers = function () {
 
 LTCp.invalidateElements = function (eles) {
   var self = this;
-  var haveLayers = false;
 
   self.lastInvalidationTime = util.performanceNow();
 
@@ -27547,7 +27522,7 @@ CRp.drawText = function (context, ele, prefix) {
     textX += marginX;
     textY += marginY;
 
-    var rotation = ele.pstyle('text-rotation');
+    var rotation = ele.pstyle(pdash + 'text-rotation');
     var theta;
 
     if (rotation.strValue === 'autorotate') {
@@ -27842,7 +27817,6 @@ CRp.drawNode = function (context, node, shiftToOriginWithBb, drawLabel) {
 
       r.nodeShapes[r.getNodeShape(node)].draw(path || context, npos.x, npos.y, nodeWidth, nodeHeight);
     }
-  }
 
     if (usePaths) {
       context.fill(path);
@@ -27863,7 +27837,6 @@ CRp.drawNode = function (context, node, shiftToOriginWithBb, drawLabel) {
         r.drawInscribedImage(context, image[_i], node, _i, nodeOpacity);
       }
     }
-  };
 
     _p.backgrounding = !(totalCompleted === numImages);
     if (prevBging !== _p.backgrounding) {
@@ -29138,7 +29111,7 @@ module.exports = Stylesheet;
 "use strict";
 
 
-module.exports = "3.2.15";
+module.exports = "snapshot-4585248939-1534434338856";
 
 /***/ })
 /******/ ]);

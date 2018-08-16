@@ -5559,20 +5559,14 @@ var elesfn = {
 elesfn.bfs = elesfn.breadthFirstSearch;
 elesfn.dfs = elesfn.depthFirstSearch;
 
-      pathTo: function pathTo(node) {
-        var target = is.string(node) ? nodes.filter(node)[0] : node[0];
-        var S = [];
-        var u = target;
+module.exports = elesfn;
 
 /***/ }),
 /* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
-          while (prev[u.id()]) {
-            var p = prev[u.id()];
+"use strict";
 
-            S.unshift(p.edge);
-            S.unshift(p.node);
 
 var is = __webpack_require__(0);
 var Heap = __webpack_require__(9);
@@ -7483,14 +7477,8 @@ module.exports = elesfn;
 /* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
-      // init dictionaries
-      for (var i = 0; i < V.length; i++) {
-        var vid = V[i].id();
+"use strict";
 
-        P[vid] = [];
-        g[vid] = 0;
-        d[vid] = Infinity;
-      }
 
 var is = __webpack_require__(0);
 var Heap = __webpack_require__(9);
@@ -8863,12 +8851,8 @@ module.exports = { parse: parse };
 /* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
-      self[j] = query.subject; // subject should be the root query
-    } // if
-  } // for
+"use strict";
 
-  return true; // success
-};
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -9299,8 +9283,6 @@ var confirmRelations = function confirmRelations(query, isNecessary, eles) {
         _matches2 = true;
         break;
       }
-    } else {
-      _matches = fieldVal !== undefined;
     }
 
     return _matches2;
@@ -9650,7 +9632,6 @@ var elesfn = {
         }
       }
     }
-  }
 
     add(this.children());
 
@@ -11307,11 +11288,8 @@ var elesfn = {
       ele.emitter().one(events, argSelector(selector), callback);
     }
 
-    var left = [];
-    var right = [];
-    var both = [];
-    var col1 = this;
-    var col2 = other;
+    return this;
+  },
 
   once: function once(events, selector, callback) {
     for (var i = 0; i < this.length; i++) {
@@ -11360,11 +11338,8 @@ module.exports = elesfn;
 /* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
-    var elements = [];
+"use strict";
 
-    for (var i = 0; i < this.length; i++) {
-      elements.push(this[i]);
-    }
 
 var is = __webpack_require__(0);
 var Selector = __webpack_require__(6);
@@ -11656,7 +11631,7 @@ var elesfn = {
       this.unmergeOne(toRemove[i]);
     }
 
-    return this;
+    return this; // chaining
   },
 
   map: function map(mapFn, thisArg) {
@@ -11807,8 +11782,6 @@ var elesfn = {
     for (var i = 0; i < this.length; i++) {
       array.push(this[i]);
     }
-  }
-};
 
     return array;
   },
@@ -12096,7 +12069,7 @@ var elesfn = {
       layout.emit({ type: 'layoutstop', layout: layout });
     }
 
-    return this;
+    return this; // chaining
   },
 
   layout: function layout(options) {
@@ -12660,7 +12633,6 @@ function defineSwitchSet(params) {
           return val;
         }
       }
-    }
 
       return ele._private[params.field];
     }
@@ -12748,12 +12720,8 @@ module.exports = elesfn;
 /* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
-  // aka DAG descendants
-  successors: defineDagAllHops({ outgoing: true }),
+"use strict";
 
-  // normally called parents in graph theory
-  // these nodes <=edges= incoming nodes
-  incomers: cache(defineDagOneHop({ incoming: true }), 'incomers'),
 
 var util = __webpack_require__(1);
 var is = __webpack_require__(0);
@@ -13308,15 +13276,8 @@ module.exports = corefn;
 /* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
-      // stop all animations
-      for (var i = 0; i < current.length; i++) {
-        current[i].stop();
-      }
-    }
+"use strict";
 
-    // if nothing currently animating, get something from the queue
-    if (current.length === 0) {
-      var next = queue.shift();
 
 var define = __webpack_require__(4);
 var util = __webpack_require__(1);
@@ -15204,7 +15165,6 @@ styfn.applyParsedProperty = function (ele, parsedProp) {
       // then link the orig prop to the new bypass
       prop.bypassed = origProp;
     }
-  }
 
     style[prop.name] = prop; // and set
   } else {
@@ -15782,11 +15742,6 @@ styfn.appendFromJson = function (json) {
 
       style.css(name, value); // apply property
     }
-
-    json.push({
-      selector: !selector ? 'core' : selector.toString(),
-      style: css
-    });
   }
 
   return style;
@@ -16043,7 +15998,7 @@ var styfn = {};
     textBackgroundShape: { enums: ['rectangle', 'roundrectangle'] },
     nodeShape: { enums: ['rectangle', 'roundrectangle', 'cutrectangle', 'bottomroundrectangle', 'barrel', 'ellipse', 'triangle', 'square', 'pentagon', 'hexagon', 'concavehexagon', 'heptagon', 'octagon', 'tag', 'star', 'diamond', 'vee', 'rhomboid', 'polygon'] },
     compoundIncludeLabels: { enums: ['include', 'exclude'] },
-    arrowShape: { enums: ['tee', 'triangle', 'triangle-tee', 'triangle-cross', 'triangle-backcurve', 'half-triangle-overshot', 'vee', 'square', 'circle', 'diamond', 'none'] },
+    arrowShape: { enums: ['tee', 'triangle', 'triangle-tee', 'triangle-cross', 'triangle-backcurve', 'half-triangle-overshot', 'vee', 'square', 'circle', 'diamond', 'chevron', 'none'] },
     arrowFill: { enums: ['filled', 'hollow'] },
     display: { enums: ['element', 'none'] },
     visibility: { enums: ['hidden', 'visible'] },
@@ -17935,7 +17890,7 @@ BreadthFirstLayout.prototype.run = function () {
     } else {
       orphanNodes.push(_ele);
     }
-  });
+  }
 
   // assign orphan nodes a depth from their neighborhood
   var maxChecks = orphanNodes.length * 3;
@@ -18358,14 +18313,8 @@ module.exports = CircleLayout;
 /* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
-  // put the values into levels
-  var levels = [[]];
-  var currentLevel = levels[0];
-  for (var _i2 = 0; _i2 < nodeValues.length; _i2++) {
-    var val = nodeValues[_i2];
+"use strict";
 
-    if (currentLevel.length > 0) {
-      var diff = Math.abs(currentLevel[0].value - val.value);
 
 var util = __webpack_require__(1);
 var math = __webpack_require__(2);
@@ -18580,11 +18529,8 @@ module.exports = ConcentricLayout;
 /* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
-  // Nesting factor (multiplier) to compute ideal edge length for nested edges
-  nestingFactor: 1.2,
+"use strict";
 
-  // Gravity force (constant)
-  gravity: 1,
 
 /*
 The CoSE layout was written by Gerardo Huck.
@@ -19071,7 +19017,6 @@ CoseLayout.prototype.run = function () {
 
         return res;
       }
-    };
 
       // Case: Intersects the top border
       if (0 < dY && (dirSlope <= -1 * nodeSlope || dirSlope >= nodeSlope)) {
@@ -19376,7 +19321,6 @@ CoseLayout.prototype.run = function () {
         flag = true;
         // s += "\nNew maxX for parent node " + p.id + ": " + p.maxX;
       }
-    };
 
       // MinX
       if (null == p.minX || node.minX - p.padLeft < p.minX) {
@@ -20953,6 +20897,14 @@ BRp.registerArrowShapes = function () {
       return edge.pstyle('width').pfValue * edge.pstyle('arrow-scale').value;
     }
   });
+
+  defineArrowShape('chevron', {
+    points: [0, 0, -0.3 / 4 * 3, -0.3 / 4 * 3, -0.2 / 4 * 3, -0.4 / 4 * 3, 0, -0.2 / 4 * 3, 0.2 / 4 * 3, -0.4 / 4 * 3, 0.3 / 4 * 3, -0.3 / 4 * 3],
+
+    gap: function gap(edge) {
+      return edge.pstyle('width').pfValue * edge.pstyle('arrow-scale').value;
+    }
+  });
 };
 
 module.exports = BRp;
@@ -20972,39 +20924,21 @@ var BRp = {};
   util.extend(BRp, props);
 });
 
-BRp.invalidateContainerClientCoordsCache = function () {
-  this.containerBB = null;
-};
+module.exports = BRp;
 
 /***/ }),
 /* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
-  if (interactiveElementsOnly) {
-    eles = eles.interactive;
-  }
+"use strict";
 
-  function addEle(ele, sqDist) {
-    if (ele.isNode()) {
-      if (nearNode) {
-        return; // can't replace node
-      } else {
-        nearNode = ele;
-        near.push(ele);
-      }
-    }
 
 var window = __webpack_require__(3);
 var math = __webpack_require__(2);
 var util = __webpack_require__(1);
 var window = __webpack_require__(3);
 
-  function checkNode(node) {
-    var width = node.outerWidth() + 2 * nodeThreshold;
-    var height = node.outerHeight() + 2 * nodeThreshold;
-    var hw = width / 2;
-    var hh = height / 2;
-    var pos = node.position();
+var BRp = {};
 
 // Project mouse
 BRp.projectIntoViewport = function (clientX, clientY) {
@@ -22477,11 +22411,8 @@ module.exports = BRp;
 /* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
-  var arrowEnd = math.shortenIntersection(intersect, p1, r.arrowShapes[tgtArShape].spacing(edge) + tgtDist);
-  var edgeEnd = math.shortenIntersection(intersect, p1, r.arrowShapes[tgtArShape].gap(edge) + tgtDist);
+"use strict";
 
-  rs.endX = edgeEnd[0];
-  rs.endY = edgeEnd[1];
 
 var math = __webpack_require__(2);
 
@@ -22862,6 +22793,11 @@ BRp.getLabelText = function (ele, prefix) {
     }
   };
 
+  // for empty text, skip all processing
+  if (!text) {
+    return '';
+  }
+
   if (textTransform == 'none') {
     // passthrough
   } else if (textTransform == 'uppercase') {
@@ -23048,12 +22984,8 @@ module.exports = BRp;
 /* 117 */
 /***/ (function(module, exports, __webpack_require__) {
 
-      ellipsized += text[i];
+"use strict";
 
-      if (i === text.length - 1) {
-        incLastCh = true;
-      }
-    }
 
 var BRp = {};
 
@@ -23437,7 +23369,6 @@ BRp.binder = function (tgt) {
 
     r.supportsPassiveEvents = supportsPassive;
   }
-};
 
   var on = function on(event, handler, useCapture) {
     var args = Array.prototype.slice.call(arguments);
@@ -28353,7 +28284,7 @@ CRp.drawText = function (context, ele, prefix) {
     textX += marginX;
     textY += marginY;
 
-    var rotation = ele.pstyle('text-rotation');
+    var rotation = ele.pstyle(pdash + 'text-rotation');
     var theta;
 
     if (rotation.strValue === 'autorotate') {
@@ -29942,7 +29873,7 @@ module.exports = Stylesheet;
 "use strict";
 
 
-module.exports = "3.2.15";
+module.exports = "snapshot-4585248939-1534434338856";
 
 /***/ })
 /******/ ]);
