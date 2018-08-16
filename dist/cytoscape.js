@@ -2524,7 +2524,7 @@ elesfn.remove = function (notifyRenderer) {
 
   function add(ele) {
     var alreadyAdded = elesToRemoveIds[ele.id()];
-    if (alreadyAdded) {
+    if (ele.removed() || alreadyAdded) {
       return;
     } else {
       elesToRemoveIds[ele.id()] = true;
@@ -5559,14 +5559,20 @@ var elesfn = {
 elesfn.bfs = elesfn.breadthFirstSearch;
 elesfn.dfs = elesfn.depthFirstSearch;
 
-module.exports = elesfn;
+      pathTo: function pathTo(node) {
+        var target = is.string(node) ? nodes.filter(node)[0] : node[0];
+        var S = [];
+        var u = target;
 
 /***/ }),
 /* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+          while (prev[u.id()]) {
+            var p = prev[u.id()];
 
+            S.unshift(p.edge);
+            S.unshift(p.node);
 
 var is = __webpack_require__(0);
 var Heap = __webpack_require__(9);
@@ -7477,8 +7483,14 @@ module.exports = elesfn;
 /* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+      // init dictionaries
+      for (var i = 0; i < V.length; i++) {
+        var vid = V[i].id();
 
+        P[vid] = [];
+        g[vid] = 0;
+        d[vid] = Infinity;
+      }
 
 var is = __webpack_require__(0);
 var Heap = __webpack_require__(9);
@@ -8851,8 +8863,12 @@ module.exports = { parse: parse };
 /* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+      self[j] = query.subject; // subject should be the root query
+    } // if
+  } // for
 
+  return true; // success
+};
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -9283,6 +9299,8 @@ var confirmRelations = function confirmRelations(query, isNecessary, eles) {
         _matches2 = true;
         break;
       }
+    } else {
+      _matches = fieldVal !== undefined;
     }
 
     return _matches2;
@@ -9632,6 +9650,7 @@ var elesfn = {
         }
       }
     }
+  }
 
     add(this.children());
 
@@ -11288,8 +11307,11 @@ var elesfn = {
       ele.emitter().one(events, argSelector(selector), callback);
     }
 
-    return this;
-  },
+    var left = [];
+    var right = [];
+    var both = [];
+    var col1 = this;
+    var col2 = other;
 
   once: function once(events, selector, callback) {
     for (var i = 0; i < this.length; i++) {
@@ -11338,8 +11360,11 @@ module.exports = elesfn;
 /* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+    var elements = [];
 
+    for (var i = 0; i < this.length; i++) {
+      elements.push(this[i]);
+    }
 
 var is = __webpack_require__(0);
 var Selector = __webpack_require__(6);
@@ -11631,7 +11656,7 @@ var elesfn = {
       this.unmergeOne(toRemove[i]);
     }
 
-    return this; // chaining
+    return this;
   },
 
   map: function map(mapFn, thisArg) {
@@ -11782,6 +11807,8 @@ var elesfn = {
     for (var i = 0; i < this.length; i++) {
       array.push(this[i]);
     }
+  }
+};
 
     return array;
   },
@@ -12069,7 +12096,7 @@ var elesfn = {
       layout.emit({ type: 'layoutstop', layout: layout });
     }
 
-    return this; // chaining
+    return this;
   },
 
   layout: function layout(options) {
@@ -12633,6 +12660,7 @@ function defineSwitchSet(params) {
           return val;
         }
       }
+    }
 
       return ele._private[params.field];
     }
@@ -12720,8 +12748,12 @@ module.exports = elesfn;
 /* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+  // aka DAG descendants
+  successors: defineDagAllHops({ outgoing: true }),
 
+  // normally called parents in graph theory
+  // these nodes <=edges= incoming nodes
+  incomers: cache(defineDagOneHop({ incoming: true }), 'incomers'),
 
 var util = __webpack_require__(1);
 var is = __webpack_require__(0);
@@ -13276,8 +13308,15 @@ module.exports = corefn;
 /* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+      // stop all animations
+      for (var i = 0; i < current.length; i++) {
+        current[i].stop();
+      }
+    }
 
+    // if nothing currently animating, get something from the queue
+    if (current.length === 0) {
+      var next = queue.shift();
 
 var define = __webpack_require__(4);
 var util = __webpack_require__(1);
@@ -14052,6 +14091,18 @@ function getEasedValue(type, start, end, percent, easingFn) {
   return val;
 }
 
+function getValue(prop, spec) {
+  if (prop.pfValue != null || prop.value != null) {
+    if (prop.pfValue != null && (spec == null || spec.type.units !== '%')) {
+      return prop.pfValue;
+    } else {
+      return prop.value;
+    }
+  } else {
+    return prop;
+  }
+}
+
 function ease(startProp, endProp, percent, easingFn, propSpec) {
   var type = propSpec != null ? propSpec.type : null;
 
@@ -14061,20 +14112,8 @@ function ease(startProp, endProp, percent, easingFn, propSpec) {
     percent = 1;
   }
 
-  var start = void 0,
-      end = void 0;
-
-  if (startProp.pfValue != null || startProp.value != null) {
-    start = startProp.pfValue != null ? startProp.pfValue : startProp.value;
-  } else {
-    start = startProp;
-  }
-
-  if (endProp.pfValue != null || endProp.value != null) {
-    end = endProp.pfValue != null ? endProp.pfValue : endProp.value;
-  } else {
-    end = endProp;
-  }
+  var start = getValue(startProp, propSpec);
+  var end = getValue(endProp, propSpec);
 
   if (is.number(start) && is.number(end)) {
     return getEasedValue(type, start, end, percent, easingFn);
@@ -15165,6 +15204,7 @@ styfn.applyParsedProperty = function (ele, parsedProp) {
       // then link the orig prop to the new bypass
       prop.bypassed = origProp;
     }
+  }
 
     style[prop.name] = prop; // and set
   } else {
@@ -15742,6 +15782,11 @@ styfn.appendFromJson = function (json) {
 
       style.css(name, value); // apply property
     }
+
+    json.push({
+      selector: !selector ? 'core' : selector.toString(),
+      style: css
+    });
   }
 
   return style;
@@ -15998,7 +16043,7 @@ var styfn = {};
     textBackgroundShape: { enums: ['rectangle', 'roundrectangle'] },
     nodeShape: { enums: ['rectangle', 'roundrectangle', 'cutrectangle', 'bottomroundrectangle', 'barrel', 'ellipse', 'triangle', 'square', 'pentagon', 'hexagon', 'concavehexagon', 'heptagon', 'octagon', 'tag', 'star', 'diamond', 'vee', 'rhomboid', 'polygon'] },
     compoundIncludeLabels: { enums: ['include', 'exclude'] },
-    arrowShape: { enums: ['tee', 'triangle', 'triangle-tee', 'triangle-cross', 'triangle-backcurve', 'half-triangle-overshot', 'vee', 'square', 'circle', 'diamond', 'chevron', 'none'] },
+    arrowShape: { enums: ['tee', 'triangle', 'triangle-tee', 'triangle-cross', 'triangle-backcurve', 'half-triangle-overshot', 'vee', 'square', 'circle', 'diamond', 'none'] },
     arrowFill: { enums: ['filled', 'hollow'] },
     display: { enums: ['element', 'none'] },
     visibility: { enums: ['hidden', 'visible'] },
@@ -16449,9 +16494,9 @@ styfn.parseImpl = function (name, value, propIsBypass, propIsFlat) {
   if (!property) {
     return null;
   } // return null on property of unknown name
-  if (value === undefined || value === null) {
+  if (value === undefined) {
     return null;
-  } // can't assign null
+  } // can't assign undefined
 
   // the property may be an alias
   if (property.alias) {
@@ -16623,7 +16668,9 @@ styfn.parseImpl = function (name, value, propIsBypass, propIsFlat) {
       name: name,
       value: valArr,
       pfValue: pfValArr,
-      strValue: valArr.join(' '),
+      strValue: valArr.map(function (val, i) {
+        return val + (unitsArr[i] || '');
+      }).join(' '),
       bypass: propIsBypass,
       units: unitsArr
     };
@@ -17888,7 +17935,7 @@ BreadthFirstLayout.prototype.run = function () {
     } else {
       orphanNodes.push(_ele);
     }
-  }
+  });
 
   // assign orphan nodes a depth from their neighborhood
   var maxChecks = orphanNodes.length * 3;
@@ -18311,8 +18358,14 @@ module.exports = CircleLayout;
 /* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+  // put the values into levels
+  var levels = [[]];
+  var currentLevel = levels[0];
+  for (var _i2 = 0; _i2 < nodeValues.length; _i2++) {
+    var val = nodeValues[_i2];
 
+    if (currentLevel.length > 0) {
+      var diff = Math.abs(currentLevel[0].value - val.value);
 
 var util = __webpack_require__(1);
 var math = __webpack_require__(2);
@@ -18527,8 +18580,11 @@ module.exports = ConcentricLayout;
 /* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+  // Nesting factor (multiplier) to compute ideal edge length for nested edges
+  nestingFactor: 1.2,
 
+  // Gravity force (constant)
+  gravity: 1,
 
 /*
 The CoSE layout was written by Gerardo Huck.
@@ -18699,6 +18755,9 @@ CoseLayout.prototype.run = function () {
     },
     stop: function stop() {
       return this;
+    },
+    stopped: function stopped() {
+      return true;
     }
   };
 
@@ -19012,6 +19071,7 @@ CoseLayout.prototype.run = function () {
 
         return res;
       }
+    };
 
       // Case: Intersects the top border
       if (0 < dY && (dirSlope <= -1 * nodeSlope || dirSlope >= nodeSlope)) {
@@ -19316,6 +19376,7 @@ CoseLayout.prototype.run = function () {
         flag = true;
         // s += "\nNew maxX for parent node " + p.id + ": " + p.maxX;
       }
+    };
 
       // MinX
       if (null == p.minX || node.minX - p.padLeft < p.minX) {
@@ -20780,7 +20841,7 @@ BRp.registerArrowShapes = function () {
     },
 
     gap: function gap(edge) {
-      return standardGap(edge) * 0.985;
+      return standardGap(edge) * 0.8;
     }
   });
 
@@ -20846,7 +20907,7 @@ BRp.registerArrowShapes = function () {
     points: [-0.15, -0.3, 0, 0, 0.15, -0.3, 0, -0.15],
 
     gap: function gap(edge) {
-      return standardGap(edge) * 0.985;
+      return standardGap(edge) * 0.525;
     }
   });
 
@@ -20892,14 +20953,6 @@ BRp.registerArrowShapes = function () {
       return edge.pstyle('width').pfValue * edge.pstyle('arrow-scale').value;
     }
   });
-
-  defineArrowShape('chevron', {
-    points: [0, 0, -0.3 / 4 * 3, -0.3 / 4 * 3, -0.2 / 4 * 3, -0.4 / 4 * 3, 0, -0.2 / 4 * 3, 0.2 / 4 * 3, -0.4 / 4 * 3, 0.3 / 4 * 3, -0.3 / 4 * 3],
-
-    gap: function gap(edge) {
-      return edge.pstyle('width').pfValue * edge.pstyle('arrow-scale').value;
-    }
-  });
 };
 
 module.exports = BRp;
@@ -20919,21 +20972,39 @@ var BRp = {};
   util.extend(BRp, props);
 });
 
-module.exports = BRp;
+BRp.invalidateContainerClientCoordsCache = function () {
+  this.containerBB = null;
+};
 
 /***/ }),
 /* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+  if (interactiveElementsOnly) {
+    eles = eles.interactive;
+  }
 
+  function addEle(ele, sqDist) {
+    if (ele.isNode()) {
+      if (nearNode) {
+        return; // can't replace node
+      } else {
+        nearNode = ele;
+        near.push(ele);
+      }
+    }
 
 var window = __webpack_require__(3);
 var math = __webpack_require__(2);
 var util = __webpack_require__(1);
 var window = __webpack_require__(3);
 
-var BRp = {};
+  function checkNode(node) {
+    var width = node.outerWidth() + 2 * nodeThreshold;
+    var height = node.outerHeight() + 2 * nodeThreshold;
+    var hw = width / 2;
+    var hh = height / 2;
+    var pos = node.position();
 
 // Project mouse
 BRp.projectIntoViewport = function (clientX, clientY) {
@@ -22192,7 +22263,7 @@ BRp.getControlPoints = function (edge) {
   var rs = edge[0]._private.rscratch;
   var type = rs.edgeType;
 
-  if (type === 'bezier' || type === 'multibezier') {
+  if (type === 'bezier' || type === 'multibezier' || type === 'self' || type === 'compound') {
     return getPts(rs.ctrlpts);
   }
 };
@@ -22406,8 +22477,11 @@ module.exports = BRp;
 /* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+  var arrowEnd = math.shortenIntersection(intersect, p1, r.arrowShapes[tgtArShape].spacing(edge) + tgtDist);
+  var edgeEnd = math.shortenIntersection(intersect, p1, r.arrowShapes[tgtArShape].gap(edge) + tgtDist);
 
+  rs.endX = edgeEnd[0];
+  rs.endY = edgeEnd[1];
 
 var math = __webpack_require__(2);
 
@@ -22974,8 +23048,12 @@ module.exports = BRp;
 /* 117 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+      ellipsized += text[i];
 
+      if (i === text.length - 1) {
+        incLastCh = true;
+      }
+    }
 
 var BRp = {};
 
@@ -23359,6 +23437,7 @@ BRp.binder = function (tgt) {
 
     r.supportsPassiveEvents = supportsPassive;
   }
+};
 
   var on = function on(event, handler, useCapture) {
     var args = Array.prototype.slice.call(arguments);
@@ -25058,8 +25137,14 @@ BRp.load = function () {
       earlier[j] = now[j];
     }
     //r.redraw();
-  }, false);
 
+    // the active bg indicator should be removed when making a swipe that is neither for dragging nodes or panning
+    if (capture && e.touches.length > 0 && !r.hoverData.draggingEles && !r.swipePanning && r.data.bgActivePosistion != null) {
+      r.data.bgActivePosistion = undefined;
+      r.redrawHint('select', true);
+      r.redraw();
+    }
+  }, false);
   var touchcancelHandler;
   r.registerBinding(window, 'touchcancel', touchcancelHandler = function touchcancelHandler(e) {
     // eslint-disable-line no-undef
@@ -25080,7 +25165,9 @@ BRp.load = function () {
     var capture = r.touchData.capture;
 
     if (capture) {
-      r.touchData.capture = false;
+      if (e.touches.length === 0) {
+        r.touchData.capture = false;
+      }
 
       e.preventDefault();
     } else {
@@ -25579,9 +25666,24 @@ BRp.generateBarrel = function () {
     },
 
     intersectLine: function intersectLine(nodeX, nodeY, width, height, x, y, padding) {
+      // use two fixed t values for the bezier curve approximation
+
+      var t0 = 0.15;
+      var t1 = 0.5;
+      var t2 = 0.85;
+
       var bPts = this.generateBarrelBezierPts(width + 2 * padding, height + 2 * padding, nodeX, nodeY);
 
-      var pts = [].concat(bPts.topLeft, bPts.topRight, bPts.bottomRight, bPts.bottomLeft);
+      var approximateBarrelCurvePts = function approximateBarrelCurvePts(pts) {
+        // approximate curve pts based on the two t values
+        var m0 = math.qbezierPtAt({ x: pts[0], y: pts[1] }, { x: pts[2], y: pts[3] }, { x: pts[4], y: pts[5] }, t0);
+        var m1 = math.qbezierPtAt({ x: pts[0], y: pts[1] }, { x: pts[2], y: pts[3] }, { x: pts[4], y: pts[5] }, t1);
+        var m2 = math.qbezierPtAt({ x: pts[0], y: pts[1] }, { x: pts[2], y: pts[3] }, { x: pts[4], y: pts[5] }, t2);
+
+        return [pts[0], pts[1], m0.x, m0.y, m1.x, m1.y, m2.x, m2.y, pts[4], pts[5]];
+      };
+
+      var pts = [].concat(approximateBarrelCurvePts(bPts.topLeft), approximateBarrelCurvePts(bPts.topRight), approximateBarrelCurvePts(bPts.bottomRight), approximateBarrelCurvePts(bPts.bottomLeft));
 
       return math.polygonIntersectLine(x, y, pts, nodeX, nodeY);
     },
@@ -26061,6 +26163,25 @@ function CanvasRenderer(options) {
         // then keep cached ele texture
       } else {
         r.data.eleTxrCache.invalidateElement(ele);
+
+        // NB this block of code should not be ported to 3.3 (unstable branch).
+        // - This check is unneccesary in 3.3 as caches will be stored without respect to opacity.
+        // - This fix may result in lowered performance for compound graphs.
+        // - Ref : Opacity of child node is not updated for certain zoom levels after parent opacity is overriden #2078
+        if (ele.isParent() && de['style']) {
+          var op1 = rs.prevParentOpacity;
+          var op2 = ele.pstyle('opacity').pfValue;
+
+          rs.prevParentOpacity = op2;
+
+          if (op1 !== op2) {
+            var descs = ele.descendants();
+
+            for (var j = 0; j < descs.length; j++) {
+              r.data.eleTxrCache.invalidateElement(descs[j]);
+            }
+          }
+        }
       }
     }
 
@@ -27593,13 +27714,13 @@ CRp.drawEdge = function (context, edge, shiftToOriginWithBb, drawLabel) {
   var rs = edge._private.rscratch;
   var usePaths = r.usePaths();
 
-  // if bezier ctrl pts can not be calculated, then die
-  if (rs.badLine || isNaN(rs.allpts[0])) {
-    // isNaN in case edge is impossible and browser bugs (e.g. safari)
+  if (!edge.visible()) {
     return;
   }
 
-  if (!edge.visible()) {
+  // if bezier ctrl pts can not be calculated, then die
+  if (rs.badLine || rs.allpts == null || isNaN(rs.allpts[0])) {
+    // isNaN in case edge is impossible and browser bugs (e.g. safari)
     return;
   }
 
@@ -29821,7 +29942,7 @@ module.exports = Stylesheet;
 "use strict";
 
 
-module.exports = "snapshot-6766201765-1528852683625";
+module.exports = "3.2.15";
 
 /***/ })
 /******/ ]);

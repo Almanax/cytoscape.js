@@ -62,7 +62,7 @@ styfn.parseImpl = function( name, value, propIsBypass, propIsFlat ){
   let types = self.types;
 
   if( !property ){ return null; } // return null on property of unknown name
-  if( value === undefined || value === null ){ return null; } // can't assign null
+  if( value === undefined ){ return null; } // can't assign undefined
 
   // the property may be an alias
   if( property.alias ){
@@ -220,7 +220,7 @@ styfn.parseImpl = function( name, value, propIsBypass, propIsFlat ){
       name: name,
       value: valArr,
       pfValue: pfValArr,
-      strValue: valArr.join( ' ' ),
+      strValue: valArr.map( (val, i) => val + (unitsArr[i] || '') ).join(' '),
       bypass: propIsBypass,
       units: unitsArr
     };

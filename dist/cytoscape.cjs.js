@@ -2524,7 +2524,7 @@ elesfn.remove = function (notifyRenderer) {
 
   function add(ele) {
     var alreadyAdded = elesToRemoveIds[ele.id()];
-    if (alreadyAdded) {
+    if (ele.removed() || alreadyAdded) {
       return;
     } else {
       elesToRemoveIds[ele.id()] = true;
@@ -11317,6 +11317,7 @@ var elesfn = {
       eles: this
     }));
   }
+}
 
 };
 
@@ -11476,7 +11477,7 @@ var elesfn = {
     var ele = this[0];
     var cy = ele.cy();
 
-    if (!cy.styleEnabled()) {
+    if (!ele.cy().styleEnabled()) {
       return;
     }
 
@@ -11491,6 +11492,7 @@ var elesfn = {
     if (!ele.cy().styleEnabled()) {
       return;
     }
+  },
 
     if (ele) {
       var pstyle = ele.pstyle(property);
@@ -11799,8 +11801,15 @@ module.exports = elesfn;
 /* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+  if (ele) {
+    return !ele.visible();
+  }
+};
 
+elesfn.bypass = elesfn.css = elesfn.style;
+elesfn.renderedCss = elesfn.renderedStyle;
+elesfn.removeBypass = elesfn.removeCss = elesfn.removeStyle;
+elesfn.pstyle = elesfn.parsedStyle;
 
 var elesfn = {};
 
@@ -13290,6 +13299,18 @@ function getEasedValue(type, start, end, percent, easingFn) {
   return val;
 }
 
+function getValue(prop, spec) {
+  if (prop.pfValue != null || prop.value != null) {
+    if (prop.pfValue != null && (spec == null || spec.type.units !== '%')) {
+      return prop.pfValue;
+    } else {
+      return prop.value;
+    }
+  } else {
+    return prop;
+  }
+}
+
 function ease(startProp, endProp, percent, easingFn, propSpec) {
   var type = propSpec != null ? propSpec.type : null;
 
@@ -13299,20 +13320,8 @@ function ease(startProp, endProp, percent, easingFn, propSpec) {
     percent = 1;
   }
 
-  var start = void 0,
-      end = void 0;
-
-  if (startProp.pfValue != null || startProp.value != null) {
-    start = startProp.pfValue != null ? startProp.pfValue : startProp.value;
-  } else {
-    start = startProp;
-  }
-
-  if (endProp.pfValue != null || endProp.value != null) {
-    end = endProp.pfValue != null ? endProp.pfValue : endProp.value;
-  } else {
-    end = endProp;
-  }
+  var start = getValue(startProp, propSpec);
+  var end = getValue(endProp, propSpec);
 
   if (is.number(start) && is.number(end)) {
     return getEasedValue(type, start, end, percent, easingFn);
@@ -14695,6 +14704,10 @@ styfn.applyBypass = function (eles, name, value, updateTransitions) {
         var prevProp = ele.pstyle(_prop2.name);
         diffProp = diffProps[_prop2.name] = { prev: prevProp };
       }
+    }
+  } else if (is.string(name)) {
+    // then parse the single property
+    var _parsedProp = this.parse(name, value, true);
 
       ret = this.applyParsedProperty(ele, _prop2) || ret;
 
@@ -15236,7 +15249,7 @@ var styfn = {};
     textBackgroundShape: { enums: ['rectangle', 'roundrectangle'] },
     nodeShape: { enums: ['rectangle', 'roundrectangle', 'cutrectangle', 'bottomroundrectangle', 'barrel', 'ellipse', 'triangle', 'square', 'pentagon', 'hexagon', 'concavehexagon', 'heptagon', 'octagon', 'tag', 'star', 'diamond', 'vee', 'rhomboid', 'polygon'] },
     compoundIncludeLabels: { enums: ['include', 'exclude'] },
-    arrowShape: { enums: ['tee', 'triangle', 'triangle-tee', 'triangle-cross', 'triangle-backcurve', 'half-triangle-overshot', 'vee', 'square', 'circle', 'diamond', 'chevron', 'none'] },
+    arrowShape: { enums: ['tee', 'triangle', 'triangle-tee', 'triangle-cross', 'triangle-backcurve', 'half-triangle-overshot', 'vee', 'square', 'circle', 'diamond', 'none'] },
     arrowFill: { enums: ['filled', 'hollow'] },
     display: { enums: ['element', 'none'] },
     visibility: { enums: ['hidden', 'visible'] },
@@ -15687,9 +15700,9 @@ styfn.parseImpl = function (name, value, propIsBypass, propIsFlat) {
   if (!property) {
     return null;
   } // return null on property of unknown name
-  if (value === undefined || value === null) {
+  if (value === undefined) {
     return null;
-  } // can't assign null
+  } // can't assign undefined
 
   // the property may be an alias
   if (property.alias) {
@@ -15861,7 +15874,9 @@ styfn.parseImpl = function (name, value, propIsBypass, propIsFlat) {
       name: name,
       value: valArr,
       pfValue: pfValArr,
-      strValue: valArr.join(' '),
+      strValue: valArr.map(function (val, i) {
+        return val + (unitsArr[i] || '');
+      }).join(' '),
       bypass: propIsBypass,
       units: unitsArr
     };
@@ -16068,8 +16083,13 @@ module.exports = styfn;
 /* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+          if (is.number(y)) {
+            pan.y = y;
+          }
 
+          this.emit('pan viewport');
+        }
+        break;
 
 var is = __webpack_require__(0);
 var window = __webpack_require__(3);
@@ -16361,6 +16381,7 @@ var corefn = {
         pan: pan
       };
     }
+  },
 
     return;
   },
@@ -17431,8 +17452,16 @@ module.exports = BreadthFirstLayout;
 /* 98 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+    minDistance = Math.max(minDistance, w, h);
+  }
 
+  if (is.number(options.radius)) {
+    r = options.radius;
+  } else if (nodes.length <= 1) {
+    r = 0;
+  } else {
+    r = Math.min(bb.h, bb.w) / 2 - minDistance;
+  }
 
 var util = __webpack_require__(1);
 var math = __webpack_require__(2);
@@ -17937,6 +17966,9 @@ CoseLayout.prototype.run = function () {
     },
     stop: function stop() {
       return this;
+    },
+    stopped: function stopped() {
+      return true;
     }
   };
 
@@ -20018,7 +20050,7 @@ BRp.registerArrowShapes = function () {
     },
 
     gap: function gap(edge) {
-      return standardGap(edge) * 0.985;
+      return standardGap(edge) * 0.8;
     }
   });
 
@@ -20084,7 +20116,7 @@ BRp.registerArrowShapes = function () {
     points: [-0.15, -0.3, 0, 0, 0.15, -0.3, 0, -0.15],
 
     gap: function gap(edge) {
-      return standardGap(edge) * 0.985;
+      return standardGap(edge) * 0.525;
     }
   });
 
@@ -20125,14 +20157,6 @@ BRp.registerArrowShapes = function () {
 
   defineArrowShape('diamond', {
     points: [-0.15, -0.15, 0, -0.3, 0.15, -0.15, 0, 0],
-
-    gap: function gap(edge) {
-      return edge.pstyle('width').pfValue * edge.pstyle('arrow-scale').value;
-    }
-  });
-
-  defineArrowShape('chevron', {
-    points: [0, 0, -0.3 / 4 * 3, -0.3 / 4 * 3, -0.2 / 4 * 3, -0.4 / 4 * 3, 0, -0.2 / 4 * 3, 0.2 / 4 * 3, -0.4 / 4 * 3, 0.3 / 4 * 3, -0.3 / 4 * 3],
 
     gap: function gap(edge) {
       return edge.pstyle('width').pfValue * edge.pstyle('arrow-scale').value;
@@ -21430,7 +21454,7 @@ BRp.getControlPoints = function (edge) {
   var rs = edge[0]._private.rscratch;
   var type = rs.edgeType;
 
-  if (type === 'bezier' || type === 'multibezier') {
+  if (type === 'bezier' || type === 'multibezier' || type === 'self' || type === 'compound') {
     return getPts(rs.ctrlpts);
   }
 };
@@ -22253,6 +22277,7 @@ BRp.registerCalculationListeners = function () {
   var cy = this.cy;
   var elesToUpdate = cy.collection();
   var r = this;
+  var shape = node.pstyle('shape').value;
 
   var enqueue = function enqueue(eles, e) {
     var dirtyStyleCaches = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
@@ -22440,8 +22465,10 @@ module.exports = BRp;
 /* 118 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+  // edges
 
+  .on('add.* style.*', 'edge', function onDirtyEdge(e) {
+    var edge = e.target;
 
 var zIndexSort = __webpack_require__(17);
 
@@ -24296,8 +24323,14 @@ BRp.load = function () {
       earlier[j] = now[j];
     }
     //r.redraw();
-  }, false);
 
+    // the active bg indicator should be removed when making a swipe that is neither for dragging nodes or panning
+    if (capture && e.touches.length > 0 && !r.hoverData.draggingEles && !r.swipePanning && r.data.bgActivePosistion != null) {
+      r.data.bgActivePosistion = undefined;
+      r.redrawHint('select', true);
+      r.redraw();
+    }
+  }, false);
   var touchcancelHandler;
   r.registerBinding(window, 'touchcancel', touchcancelHandler = function touchcancelHandler(e) {
     // eslint-disable-line no-undef
@@ -24318,7 +24351,9 @@ BRp.load = function () {
     var capture = r.touchData.capture;
 
     if (capture) {
-      r.touchData.capture = false;
+      if (e.touches.length === 0) {
+        r.touchData.capture = false;
+      }
 
       e.preventDefault();
     } else {
@@ -24639,8 +24674,14 @@ module.exports = BRp;
 /* 121 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+    var pointerIsMouse = function pointerIsMouse(e) {
+      return e.pointerType === 'mouse' || e.pointerType === 4;
+    };
 
+    r.registerBinding(r.container, 'pointerdown', function (e) {
+      if (pointerIsMouse(e)) {
+        return;
+      } // mouse already handled
 
 var math = __webpack_require__(2);
 
@@ -24817,9 +24858,24 @@ BRp.generateBarrel = function () {
     },
 
     intersectLine: function intersectLine(nodeX, nodeY, width, height, x, y, padding) {
+      // use two fixed t values for the bezier curve approximation
+
+      var t0 = 0.15;
+      var t1 = 0.5;
+      var t2 = 0.85;
+
       var bPts = this.generateBarrelBezierPts(width + 2 * padding, height + 2 * padding, nodeX, nodeY);
 
-      var pts = [].concat(bPts.topLeft, bPts.topRight, bPts.bottomRight, bPts.bottomLeft);
+      var approximateBarrelCurvePts = function approximateBarrelCurvePts(pts) {
+        // approximate curve pts based on the two t values
+        var m0 = math.qbezierPtAt({ x: pts[0], y: pts[1] }, { x: pts[2], y: pts[3] }, { x: pts[4], y: pts[5] }, t0);
+        var m1 = math.qbezierPtAt({ x: pts[0], y: pts[1] }, { x: pts[2], y: pts[3] }, { x: pts[4], y: pts[5] }, t1);
+        var m2 = math.qbezierPtAt({ x: pts[0], y: pts[1] }, { x: pts[2], y: pts[3] }, { x: pts[4], y: pts[5] }, t2);
+
+        return [pts[0], pts[1], m0.x, m0.y, m1.x, m1.y, m2.x, m2.y, pts[4], pts[5]];
+      };
+
+      var pts = [].concat(approximateBarrelCurvePts(bPts.topLeft), approximateBarrelCurvePts(bPts.topRight), approximateBarrelCurvePts(bPts.bottomRight), approximateBarrelCurvePts(bPts.bottomLeft));
 
       return math.polygonIntersectLine(x, y, pts, nodeX, nodeY);
     },
@@ -25299,6 +25355,25 @@ function CanvasRenderer(options) {
         // then keep cached ele texture
       } else {
         r.data.eleTxrCache.invalidateElement(ele);
+
+        // NB this block of code should not be ported to 3.3 (unstable branch).
+        // - This check is unneccesary in 3.3 as caches will be stored without respect to opacity.
+        // - This fix may result in lowered performance for compound graphs.
+        // - Ref : Opacity of child node is not updated for certain zoom levels after parent opacity is overriden #2078
+        if (ele.isParent() && de['style']) {
+          var op1 = rs.prevParentOpacity;
+          var op2 = ele.pstyle('opacity').pfValue;
+
+          rs.prevParentOpacity = op2;
+
+          if (op1 !== op2) {
+            var descs = ele.descendants();
+
+            for (var j = 0; j < descs.length; j++) {
+              r.data.eleTxrCache.invalidateElement(descs[j]);
+            }
+          }
+        }
       }
     }
 
@@ -26223,6 +26298,7 @@ LTCp.levelIsComplete = function (lvl, eles) {
 
     numElesInLayers += layer.eles.length;
   }
+};
 
   // we should have exactly the number of eles passed in to be complete
   if (numElesInLayers !== eles.length) {
@@ -26323,6 +26399,7 @@ LTCp.haveLayers = function () {
 
 LTCp.invalidateElements = function (eles) {
   var self = this;
+  var haveLayers = false;
 
   self.lastInvalidationTime = util.performanceNow();
 
@@ -26831,13 +26908,13 @@ CRp.drawEdge = function (context, edge, shiftToOriginWithBb, drawLabel) {
   var rs = edge._private.rscratch;
   var usePaths = r.usePaths();
 
-  // if bezier ctrl pts can not be calculated, then die
-  if (rs.badLine || isNaN(rs.allpts[0])) {
-    // isNaN in case edge is impossible and browser bugs (e.g. safari)
+  if (!edge.visible()) {
     return;
   }
 
-  if (!edge.visible()) {
+  // if bezier ctrl pts can not be calculated, then die
+  if (rs.badLine || rs.allpts == null || isNaN(rs.allpts[0])) {
+    // isNaN in case edge is impossible and browser bugs (e.g. safari)
     return;
   }
 
@@ -27765,6 +27842,7 @@ CRp.drawNode = function (context, node, shiftToOriginWithBb, drawLabel) {
 
       r.nodeShapes[r.getNodeShape(node)].draw(path || context, npos.x, npos.y, nodeWidth, nodeHeight);
     }
+  }
 
     if (usePaths) {
       context.fill(path);
@@ -27785,6 +27863,7 @@ CRp.drawNode = function (context, node, shiftToOriginWithBb, drawLabel) {
         r.drawInscribedImage(context, image[_i], node, _i, nodeOpacity);
       }
     }
+  };
 
     _p.backgrounding = !(totalCompleted === numImages);
     if (prevBging !== _p.backgrounding) {
@@ -29059,7 +29138,7 @@ module.exports = Stylesheet;
 "use strict";
 
 
-module.exports = "snapshot-6766201765-1528852683625";
+module.exports = "3.2.15";
 
 /***/ })
 /******/ ]);
