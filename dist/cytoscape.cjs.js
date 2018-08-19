@@ -27190,9 +27190,6 @@ CRp.safeDrawImage = function (context, img, ix, iy, iw, ih, x, y, w, h) {
   if (iw <= 0 || ih <= 0 || w <= 0 || h <= 0) {
     return;
   }
-  console.log('CY image');
-  console.log(img);
-
   try {
     context.drawImage(img, ix, iy, iw, ih, x, y, w, h);
   } catch (e) {
@@ -29117,7 +29114,7 @@ module.exports = Stylesheet;
 "use strict";
 
 
-module.exports = "3.2.17b3";
+module.exports = "3.2.17b4";
 
 /***/ })
 /******/ ]);
