@@ -10,7 +10,11 @@ CRp.safeDrawImage = function( context, img, ix, iy, iw, ih, x, y, w, h ){
   console.log('CY image');
   console.log(img)
 
-  context.drawImage( img, ix, iy, iw, ih, x, y, w, h );
+  try {
+      context.drawImage(img, ix, iy, iw, ih, x, y, w, h);
+  } catch (e) {
+      console.log(e)
+  }
 };
 
 CRp.drawInscribedImage = function( context, img, node, index, nodeOpacity ){
