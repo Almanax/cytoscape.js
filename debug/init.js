@@ -21,6 +21,12 @@ $(function(){
       .selector('node')
         .css({
           'label': 'data(id)',
+          'background-fit': 'cover',
+          'background-image': function (e) {
+            let cls = e.data()
+            if (cls.data === undefined) return '/debug/images/favicon.png'
+            return cls.data['a']
+          }
           // 'min-zoomed-font-size': 10,
           // 'border-width': 3,
           // 'background-color': '#888',
@@ -182,7 +188,7 @@ $(function(){
 
     elements: {
       nodes: [
-        { data: { id: 'a', weight: 50 } },
+        { data: { id: 'a', weight: 50, data: {'a': '/debug/images/gnu.png'} } },
         { data: { id: 'b', weight: 30 } },
         { data: { id: 'c', weight: 20 } },
         { data: { id: 'd', weight: 10 } },
@@ -328,7 +334,7 @@ $(function(){
       for(var i = 0; i < n; i++){
         nodes.push({
           group: 'nodes',
-          data: { id: 'n' + (i + numNodes), weight: Math.round( Math.random() * 100 ) },
+          data: { id: 'n' + (i + numNodes), weight: Math.round( Math.random() * 100 ), data: {'a': '/debug/images/gnu.png'} },
           position: { x: Math.random() * width, y: Math.random() * height }
         });
       }
